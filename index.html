@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<title>体重管理</title>
+<style>
+:root{--bg:#F4F4F1;--card:#FFFFFF;--ink:#1C1C1A;--sub:#7C7F7B;--line:#DEDED9;--green:#6DB58D;--gd:#2F7A55;--gt:#E3F0E8;--or:#E8A33D;--ot:#FBEBC8}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--bg);color:var(--ink);font-family:"Helvetica Neue",Helvetica,Arial,"PingFang SC","Microsoft YaHei",sans-serif;font-variant-numeric:tabular-nums}
+#app{max-width:520px;margin:0 auto;min-height:100vh;padding:calc(env(safe-area-inset-top,0px) + 16px) 16px calc(env(safe-area-inset-bottom,0px) + 96px)}
+.head{display:flex;justify-content:space-between;align-items:center;border-top:3px solid var(--ink);padding-top:10px;margin-bottom:16px}
+.head h1{font-size:22px;letter-spacing:.04em}
+.link{font:inherit;font-size:14px;color:var(--gd);background:none;border:0;min-height:40px;padding:0 4px;cursor:pointer}
+.card{background:var(--card);border:1px solid var(--line);padding:18px;margin-bottom:14px}
+.thin{--c:#8E9490;--bg2:#E7E9E7;--t:#5E645F}.ok{--c:#6DB58D;--bg2:#DDEEE4;--t:#2F7A55}.over{--c:#E8A33D;--bg2:#FBEBC8;--t:#B45F06}.obese{--c:#DA6B2D;--bg2:#F9DCCB;--t:#A8430F}
+.cat{border-left:10px solid var(--c)}
+.top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.sl{font-size:12px;color:var(--sub);letter-spacing:.04em}
+.tag{display:inline-flex;align-items:center;gap:6px;background:var(--bg2);color:var(--t);font-weight:700;font-size:14px;padding:5px 10px;white-space:nowrap}
+.tag:before{content:"";width:9px;height:9px;background:var(--c)}
+.big{font-size:60px;font-weight:700;letter-spacing:-.03em;line-height:1.1;margin:10px 0 14px}
+.big small{font-size:18px;font-weight:400;color:var(--sub);letter-spacing:0;margin-left:4px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1.3fr;border-top:1px solid var(--ink);padding-top:12px}
+.g3 b{display:block;font-size:19px;margin-top:4px}
+.g3 .gr{color:var(--green)}
+.rows{margin-top:14px;border-top:1px solid var(--line)}
+.rw{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);font-size:14px}
+.rw:last-child{border-bottom:0;padding-bottom:0}
+.rw b{font-size:15px}.up{color:#C4631C}.dn{color:var(--gd)}.gd{color:var(--gd)}
+.seg{display:flex;border:1px solid var(--ink);margin-bottom:12px}
+.seg button{flex:1;font:inherit;font-size:14px;min-height:38px;border:0;background:transparent;color:var(--ink);cursor:pointer}
+.seg button.on{background:var(--green);color:#fff;font-weight:700}
+svg{display:block;width:100%;height:auto}
+.leg{font-size:12px;color:var(--sub);margin-top:10px;line-height:1.7}
+.leg i{display:inline-block;width:9px;height:9px;margin-right:4px}
+h2{font-size:17px;margin-bottom:6px}
+.lh{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.item{display:flex;justify-content:space-between;gap:10px;padding:13px 0;border-top:1px solid var(--line);cursor:pointer}
+.item .t{font-size:14px;font-weight:700}
+.item .s{margin-top:5px;display:flex;flex-wrap:wrap;gap:5px;font-size:12px;color:var(--sub)}
+.item .r{text-align:right;white-space:nowrap}.item .r b{font-size:20px}.item .r span{display:block;font-size:12px}
+.mini{background:#EFEFEB;color:#4A4D49;padding:2px 7px;font-size:12px}
+.empty{padding:22px 0;text-align:center;color:var(--sub);font-size:14px}
+.foot{font-size:12px;color:var(--sub);text-align:center;margin-top:6px;line-height:1.6}
+#fab{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 14px);width:calc(100% - 32px);max-width:488px;min-height:54px;background:var(--green);color:#fff;border:0;font:inherit;font-size:17px;font-weight:700;letter-spacing:.15em;cursor:pointer}
+#modal{position:fixed;inset:0;background:rgba(28,28,26,.45);display:none;align-items:flex-end;justify-content:center;z-index:9}
+#modal.on{display:flex}
+#sheet{background:var(--bg);width:100%;max-width:520px;max-height:92%;overflow-y:auto;padding:18px 18px calc(env(safe-area-inset-bottom,0px) + 20px);border-top:4px solid var(--green)}
+.fr{padding:11px 0;border-bottom:1px solid var(--line)}.fr>label{display:block;font-size:12px;color:var(--sub);margin-bottom:6px}
+input{font:inherit;font-size:16px;color:var(--ink);background:#fff;border:1px solid var(--line);border-radius:0;padding:10px;min-height:44px;width:100%;outline:none}
+input:focus{border-color:var(--green)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font:inherit;font-size:14px;min-height:36px;padding:0 13px;border:1px solid var(--ink);background:transparent;color:var(--ink);cursor:pointer}
+.chip.sel{background:var(--green);border-color:var(--green);color:#fff}
+.chip.add{border-style:dashed;color:var(--sub);border-color:var(--sub)}
+.ab{display:flex;gap:8px;width:100%}.ab input{min-height:36px;padding:6px 10px}
+.btn{display:block;width:100%;min-height:50px;margin-top:14px;font:inherit;font-size:16px;font-weight:700;letter-spacing:.15em;background:var(--green);color:#fff;border:0;cursor:pointer}
+.btn:disabled{background:#BFDCCB;cursor:not-allowed}
+.btn.gh{background:transparent;color:var(--ink);border:1px solid var(--ink);font-weight:400;letter-spacing:.08em;margin-top:10px}
+.btn.dg{color:#B3261E;border-color:#B3261E}
+.tr{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--line)}
+.tr button{font:inherit;font-size:18px;width:40px;height:40px;border:0;background:transparent;color:#B3261E;cursor:pointer}
+#toast{position:fixed;left:50%;bottom:100px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 18px;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:10}
+#toast.on{opacity:1}
+</style>
+</head>
+<body>
+<div id="app"><div id="main"></div></div>
+<button id="fab" style="display:none">＋ 记录体重</button>
+<div id="modal"><div id="sheet"></div></div>
+<div id="toast"></div>
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let D={height:0,recs:[],tags:['吃撑了','散步了','锻炼了五分钟']},range='30',showAll=false;
+try{const d=JSON.parse(localStorage.getItem('bmi_data')||'null');if(d)D=Object.assign(D,d)}catch(e){}
+const save=()=>{try{localStorage.setItem('bmi_data',JSON.stringify(D))}catch(e){}};
+const f1=n=>n.toFixed(1),p2=n=>String(n).padStart(2,'0');
+const dt=t=>{const d=new Date(t);return `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日 ${p2(d.getHours())}:${p2(d.getMinutes())}`};
+const dtIn=t=>{const d=new Date(t);return `${d.getFullYear()}-${p2(d.getMonth()+1)}-${p2(d.getDate())}T${p2(d.getHours())}:${p2(d.getMinutes())}`};
+const dayKey=t=>{const d=new Date(t);return d.getFullYear()+'-'+d.getMonth()+'-'+d.getDate()};
+const toast=t=>{const e=$('#toast');e.textContent=t;e.classList.add('on');setTimeout(()=>e.classList.remove('on'),1600)};
+const sorted=()=>[...D.recs].sort((a,b)=>a.ts-b.ts);
+const catOf=b=>b<18.5?['thin','偏瘦']:b<24?['ok','正常']:b<28?['over','偏胖']:['obese','肥胖'];
+const kgAt=(b)=>b*Math.pow(D.height/100,2);
+
+function render(){
+  const m=$('#main');
+  if(!D.height){$('#fab').style.display='none';m.innerHTML=`<div class="head"><h1>体重管理</h1></div><div class="card"><h2>先填你的身高和体重</h2><div class="sl" style="margin-bottom:6px">以后可以在“设置”里修改身高</div><div class="fr"><label>身高（cm）</label><input id="oh" type="number" inputmode="decimal" step="0.1"></div><div class="fr"><label>现在的体重（kg）</label><input id="ow" type="number" inputmode="decimal" step="0.1"></div><button class="btn" id="ob">开 始</button></div>`;
+    $('#ob').onclick=()=>{const h=parseFloat($('#oh').value),w=parseFloat($('#ow').value);
+      if(!(h>=80&&h<=250)||!(w>=20&&w<=300)){toast('请检查身高和体重');return}
+      D.height=Math.round(h*10)/10;D.recs.push({id:Date.now(),ts:Date.now(),kg:Math.round(w*10)/10,tags:[],text:''});save();render()};
+    return}
+  $('#fab').style.display='block';
+  const rs=sorted(),last=rs[rs.length-1],prev=rs[rs.length-2],h2=Math.pow(D.height/100,2);
+  let top='';
+  if(last){
+    const bmi=last.kg/h2,[c,n]=catOf(bmi),w185=kgAt(18.5),w24=kgAt(24);
+    const diff=prev?last.kg-prev.kg:null;
+    const dtxt=diff===null?'<b>暂无上一条</b>':`<b class="${diff>0?'up':diff<0?'dn':''}">${diff>0?'+':diff<0?'−':''}${f1(Math.abs(diff))} kg</b>`;
+    const gap=last.kg>=w24?`<b class="up">还需减 ${f1(last.kg-w24)} kg</b>`:last.kg<w185?`<b class="up">还需增 ${f1(w185-last.kg)} kg</b>`:'<b class="gd">已在正常范围</b>';
+    top=`<section class="card cat ${c}"><div class="top"><span class="sl">最新体重 · ${dt(last.ts)}</span><span class="tag">${n} (${f1(bmi)})</span></div><div class="big">${f1(last.kg)}<small>kg</small></div><div class="g3"><div><span class="sl">身高</span><b>${f1(D.height)} cm</b></div><div><span class="sl">BMI</span><b>${f1(bmi)}</b></div><div><span class="sl">正常 BMI</span><b class="gr">18.5 ~ 23.9</b></div></div><div class="rows"><div class="rw"><span>较上一条</span>${dtxt}</div><div class="rw"><span>距正常范围（BMI 24 = ${f1(w24)} kg）</span>${gap}</div></div></section>`;
+  }
+  const list=showAll?[...rs].reverse():[...rs].reverse().slice(0,5);
+  const items=list.map(r=>{const i=rs.indexOf(r),pv=rs[i-1],d=pv?r.kg-pv.kg:null;
+    return `<div class="item" data-id="${r.id}"><div><div class="t">${dt(r.ts)}</div><div class="s">${(r.tags||[]).map(t=>`<span class="mini">${esc(t)}</span>`).join('')}${r.text?`<span>${esc(r.text)}</span>`:''}</div></div><div class="r"><b>${f1(r.kg)} kg</b>${d===null?'':`<span class="${d>0?'up':d<0?'dn':''}">${d>0?'+':d<0?'−':''}${f1(Math.abs(d))}</span>`}</div></div>`}).join('');
+  m.innerHTML=`<div class="head"><h1>体重管理</h1><button class="link" id="set">设置</button></div>${top}
+  <section class="card"><div class="seg" id="rg">${[['7','近7天'],['30','近30天'],['90','近90天'],['all','全部']].map(([v,l])=>`<button data-v="${v}" class="${range===v?'on':''}">${l}</button>`).join('')}</div>${chart()}
+  <div class="leg"><i style="background:#8E9490"></i>BMI 18.5 = ${f1(kgAt(18.5))} kg（偏瘦界线）<br><i style="background:var(--green)"></i>BMI 24 = ${f1(kgAt(24))} kg（偏胖界线）<br><i style="background:#DA6B2D"></i>BMI 28 = ${f1(kgAt(28))} kg（肥胖界线）</div></section>
+  <section class="card"><div class="lh"><h2>最近记录</h2>${rs.length>5?`<button class="link" id="all">${showAll?'收起':'全部记录'}</button>`:''}</div>${items||'<div class="empty">还没有记录</div>'}</section>
+  <div class="foot">BMI 仅供参考，不是医疗诊断。</div>`;
+}
+
+function chart(){
+  const W=340,H=210,L=40,R=10,T=14,B=26,hh=D.height/100,w185=kgAt(18.5),w24=kgAt(24),w28=kgAt(28);
+  const now=Date.now(),span=range==='all'?0:Number(range)*864e5;
+  const map=new Map();sorted().forEach(r=>map.set(dayKey(r.ts),r));
+  let pts=[...map.values()];if(span)pts=pts.filter(p=>p.ts>=now-span);
+  if(!pts.length)return '<div class="empty">这段时间没有记录</div>';
+  const dmin=Math.min(...pts.map(p=>p.kg)),dmax=Math.max(...pts.map(p=>p.kg));
+  let t0=span?now-span:pts[0].ts,t1=span?now:pts[pts.length-1].ts;
+  let ymin=Math.min(dmin,w185)-1,ymax=Math.max(dmax,w24)+1;
+  if(dmax>(w24+w28)/2)ymax=Math.max(ymax,w28+1);
+  const pad=(ymax-ymin)*.08;ymin-=pad;ymax+=pad;
+  const X=t=>t1===t0?(L+W-R)/2:L+(t-t0)/(t1-t0)*(W-L-R),Y=k=>T+(ymax-k)/(ymax-ymin)*(H-T-B);
+  let s=`<svg viewBox="0 0 ${W} ${H}">`;
+  s+=`<rect x="${L}" y="${Y(w24)}" width="${W-L-R}" height="${Y(w185)-Y(w24)}" fill="#E3F0E8"/>`;
+  s+=`<line x1="${L}" x2="${W-R}" y1="${H-B}" y2="${H-B}" stroke="#1C1C1A"/>`;
+  [[w185,'#8E9490','18.5'],[w24,'#6DB58D','24'],[w28,'#DA6B2D','28']].forEach(([k,c,n])=>{
+    if(k<ymin||k>ymax)return;
+    s+=`<line x1="${L}" x2="${W-R}" y1="${Y(k)}" y2="${Y(k)}" stroke="${c}" stroke-dasharray="4 3"/><text x="${L-5}" y="${Y(k)+4}" font-size="11" text-anchor="end" fill="#7C7F7B">${f1(k)}</text><text x="${W-R-2}" y="${Y(k)-4}" font-size="10" text-anchor="end" fill="${c}">BMI ${n}</text>`});
+  const fd=t=>{const d=new Date(t);return (d.getMonth()+1)+'/'+d.getDate()};
+  s+=`<text x="${L}" y="${H-8}" font-size="11" fill="#7C7F7B">${fd(t0)}</text><text x="${W-R}" y="${H-8}" font-size="11" text-anchor="end" fill="#7C7F7B">${fd(t1)}</text>`;
+  if(pts.length>1)s+=`<polyline points="${pts.map(p=>X(p.ts)+','+Y(p.kg)).join(' ')}" fill="none" stroke="#1C1C1A" stroke-width="2"/>`;
+  pts.forEach((p,i)=>{const [c]=catOf(p.kg/(hh*hh)),col={thin:'#8E9490',ok:'#6DB58D',over:'#E8A33D',obese:'#DA6B2D'}[c];
+    s+=`<circle cx="${X(p.ts)}" cy="${Y(p.kg)}" r="${i===pts.length-1?6:4}" fill="#fff" stroke="${col}" stroke-width="3"/>`});
+  const lp=pts[pts.length-1],lx=Math.min(Math.max(X(lp.ts),L+26),W-R-26),ly=Y(lp.kg);
+  s+=`<rect x="${lx-26}" y="${ly-32}" width="52" height="22" fill="#1C1C1A"/><text x="${lx}" y="${ly-17}" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">${f1(lp.kg)} kg</text></svg>`;
+  return s;
+}
+
+// 弹窗
+const openM=h=>{$('#sheet').innerHTML=h;$('#modal').classList.add('on')};
+const closeM=()=>$('#modal').classList.remove('on');
+$('#modal').onclick=e=>{if(e.target.id==='modal')closeM()};
+let selT=new Set(),adding=false;
+function chipsHTML(){return D.tags.map(t=>`<button type="button" class="chip${selT.has(t)?' sel':''}" data-t="${esc(t)}">${esc(t)}</button>`).join('')+(adding?`<div class="ab"><input id="nt" placeholder="新备注选项"><button type="button" class="chip" data-ok="1">添加</button></div>`:`<button type="button" class="chip add" data-add="1">＋ 新增</button>`)}
+function openRec(id){
+  const r=id?D.recs.find(x=>x.id===id):null;selT=new Set(r?r.tags:[]);adding=false;
+  (r?r.tags:[]).forEach(t=>{if(!D.tags.includes(t))D.tags.push(t)});
+  openM(`<div class="head" style="margin-bottom:6px"><h1>${r?'修改记录':'记录体重'}</h1></div>
+  <div class="fr"><label>体重（kg）</label><input id="rk" type="number" inputmode="decimal" step="0.1"></div>
+  <div class="fr"><label>日期时间</label><input id="rd" type="datetime-local"></div>
+  <div class="fr"><label>备注（可多选）</label><div class="chips" id="rt"></div></div>
+  <div class="fr"><label>备注（一句话，选填）</label><input id="rx" type="text" maxlength="60"></div>
+  <button class="btn" id="rs">${r?'保存修改':'保 存'}</button><button class="btn gh" id="rc">取消</button>${r?'<button class="btn gh dg" id="rdel">删除这条</button>':''}`);
+  $('#rk').value=r?r.kg:'';$('#rd').value=dtIn(r?r.ts:Date.now());$('#rx').value=r?r.text||'':'';
+  const draw=()=>{$('#rt').innerHTML=chipsHTML()};draw();
+  $('#rt').onclick=e=>{const b=e.target.closest('button');if(!b)return;
+    if(b.dataset.t!==undefined){selT.has(b.dataset.t)?selT.delete(b.dataset.t):selT.add(b.dataset.t);draw()}
+    else if(b.dataset.add){adding=true;draw();$('#nt').focus()}
+    else if(b.dataset.ok){const v=$('#nt').value.trim();if(v){if(!D.tags.includes(v))D.tags.push(v);selT.add(v);save()}adding=false;draw()}};
+  $('#rc').onclick=closeM;
+  $('#rs').onclick=()=>{
+    const kg=parseFloat($('#rk').value),ts=new Date($('#rd').value).getTime();
+    if(!(kg>=20&&kg<=300)){toast('请填写正确的体重');return}
+    if(isNaN(ts)){toast('请选择日期时间');return}
+    const o={ts,kg:Math.round(kg*10)/10,tags:D.tags.filter(t=>selT.has(t)),text:$('#rx').value.trim()};
+    if(r)Object.assign(r,o);else D.recs.push(Object.assign({id:Date.now()},o));
+    save();closeM();render();toast(r?'已修改 ✓':'已保存 ✓');
+  };
+  if(r){let armed=false;const b=$('#rdel');b.onclick=()=>{if(!armed){armed=true;b.textContent='再点一次确认删除';return}
+    D.recs=D.recs.filter(x=>x.id!==id);save();closeM();render();toast('已删除')}}
+}
+$('#fab').onclick=()=>openRec();
+
+// 设置
+function openSet(){
+  let lb='';try{lb=localStorage.getItem('bmi_bk')||''}catch(e){}
+  openM(`<div class="head" style="margin-bottom:6px"><h1>设置</h1></div>
+  <div class="fr"><label>身高（cm）</label><div class="ab"><input id="sh" type="number" inputmode="decimal" step="0.1" value="${D.height}"><button class="chip" id="shs" style="min-height:44px">保存</button></div></div>
+  <div class="fr"><label>备注选项</label><div id="tl"></div><div class="ab" style="margin-top:8px"><input id="tn" placeholder="新备注选项"><button class="chip" id="tadd" style="min-height:44px">添加</button></div></div>
+  <button class="btn gh" id="ex">导出 CSV 备份</button><button class="btn gh" id="im">导入 CSV 备份</button>
+  <div class="sl" style="margin-top:10px">${lb?'上次备份：'+esc(lb):'还没备份过。数据只存在本机，换手机或清除缓存会丢失，建议定期导出。'}</div>
+  <button class="btn" id="sd">完 成</button><input type="file" id="file" accept=".csv,.txt" style="display:none">`);
+  const draw=()=>{$('#tl').innerHTML=D.tags.length?D.tags.map((t,i)=>`<div class="tr"><span>${esc(t)}</span><button data-i="${i}">×</button></div>`).join(''):'<div class="sl">暂无选项</div>'};draw();
+  $('#tl').onclick=e=>{const b=e.target.closest('button');if(!b)return;D.tags.splice(Number(b.dataset.i),1);save();draw()};
+  $('#tadd').onclick=()=>{const v=$('#tn').value.trim();if(v&&!D.tags.includes(v)){D.tags.push(v);save();$('#tn').value='';draw()}};
+  $('#shs').onclick=()=>{const h=parseFloat($('#sh').value);if(!(h>=80&&h<=250)){toast('身高范围 80–250 cm');return}D.height=Math.round(h*10)/10;save();render();toast('身高已更新')};
+  $('#sd').onclick=closeM;$('#ex').onclick=exportCSV;
+  $('#im').onclick=()=>{$('#file').value='';$('#file').click()};
+  $('#file').onchange=importCSV;
+}
+$('#main').onclick=e=>{
+  if(e.target.closest('#set'))return openSet();
+  if(e.target.closest('#all')){showAll=!showAll;return render()}
+  const rg=e.target.closest('#rg button');if(rg){range=rg.dataset.v;return render()}
+  const it=e.target.closest('.item');if(it)openRec(Number(it.dataset.id));
+};
+
+// CSV
+const q=v=>{v=String(v);return /[",\n\r]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v};
+function exportCSV(){
+  if(!D.recs.length){toast('还没有记录可导出');return}
+  const rows=[['日期时间','体重(kg)','备注选项','备注文字']];
+  sorted().forEach(r=>rows.push([dtIn(r.ts).replace('T',' '),r.kg,(r.tags||[]).join('|'),r.text||'']));
+  const blob=new Blob(['\ufeff'+rows.map(r=>r.map(q).join(',')).join('\r\n')],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='体重记录_'+dtIn(Date.now()).slice(0,10)+'.csv';
+  document.body.appendChild(a);a.click();a.remove();
+  try{localStorage.setItem('bmi_bk',new Date().toLocaleString('zh-CN'))}catch(e){}
+  toast('已导出');
+}
+function parseCSV(t){const rows=[];let r=[],c='',iq=false;
+  for(let i=0;i<t.length;i++){const ch=t[i];
+    if(iq){if(ch==='"'){if(t[i+1]==='"'){c+='"';i++}else iq=false}else c+=ch}
+    else if(ch==='"')iq=true;else if(ch===','){r.push(c);c=''}
+    else if(ch==='\n'||ch==='\r'){if(ch==='\r'&&t[i+1]==='\n')i++;r.push(c);c='';rows.push(r);r=[]}else c+=ch}
+  if(c!==''||r.length){r.push(c);rows.push(r)}return rows.filter(x=>x.some(v=>v!==''))}
+function importCSV(e){
+  const f=e.target.files[0];if(!f)return;const rd=new FileReader();
+  rd.onload=()=>{
+    const rows=parseCSV(String(rd.result).replace(/^\ufeff/,''));
+    if(rows.length<2||!rows[0].includes('日期时间')){toast('文件格式不对');return}
+    const H=rows[0],ix=k=>H.indexOf(k);let n=0,id=Date.now();
+    rows.slice(1).forEach(x=>{
+      const ts=new Date((x[ix('日期时间')]||'').trim().replace(' ','T')).getTime(),kg=parseFloat(x[ix('体重(kg)')]);
+      if(isNaN(ts)||!(kg>0))return;
+      const tags=(x[ix('备注选项')]||'').split('|').map(s=>s.trim()).filter(Boolean);
+      tags.forEach(t=>{if(!D.tags.includes(t))D.tags.push(t)});
+      D.recs.push({id:id++,ts,kg:Math.round(kg*10)/10,tags,text:(x[ix('备注文字')]||'').trim()});n++});
+    save();render();toast(n?`已导入 ${n} 条`:'没有可导入的记录');
+  };
+  rd.readAsText(f,'utf-8');
+}
+render();
+</script>
+</body>
+</html>
